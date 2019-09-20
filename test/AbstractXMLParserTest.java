@@ -61,17 +61,17 @@ public abstract class AbstractXMLParserTest {
 
   @Test(expected = InvalidXMLException.class)
   public void testClosingWrongTag() throws InvalidXMLException {
-    enterXMLInput("<root> text </t");
+   enterXMLInput("<root> text </t");
   }
 
   @Test(expected = InvalidXMLException.class)
-  public void testInvalidCharacterInString() throws InvalidXMLException {
+  public void testInvalidCharacterInString() throws InvalidXMLException { 
     enterXMLInput("<root> te>");
   }
 
   @Test(expected = InvalidXMLException.class)
   public void testInvalidClosingOfTag() throws InvalidXMLException {
-    enterXMLInput("<root> <txt<");
+   enterXMLInput("<root> <txt<");
   }
 
   @Test(expected = InvalidXMLException.class)
@@ -81,22 +81,22 @@ public abstract class AbstractXMLParserTest {
 
   @Test(expected = InvalidXMLException.class)
   public void testInvalidCharacterInTag1() throws InvalidXMLException {
-    enterXMLInput("<ro ");
+    XMLParser resultParser = enterXMLInput("<ro ");
   }
 
   @Test(expected = InvalidXMLException.class)
   public void testDoubleOpeningOfTag() throws InvalidXMLException {
-    enterXMLInput("<<");
+   enterXMLInput("<<");
   }
 
   @Test(expected = InvalidXMLException.class)
   public void testEmptyTag() throws InvalidXMLException {
-    enterXMLInput("<>");
+   enterXMLInput("<>");
   }
 
   @Test(expected = InvalidXMLException.class)
   public void testInvalidCharacterInTagStart0() throws InvalidXMLException {
-    enterXMLInput("<0");
+    XMLParser resultParser = enterXMLInput("<0");
   }
 
   @Test(expected = InvalidXMLException.class)
@@ -106,7 +106,7 @@ public abstract class AbstractXMLParserTest {
 
   @Test(expected = InvalidXMLException.class)
   public void testStartWithClosingTag() throws InvalidXMLException {
-    enterXMLInput("</");
+   enterXMLInput("</");
   }
 
   @Test(expected = InvalidXMLException.class)
@@ -116,26 +116,27 @@ public abstract class AbstractXMLParserTest {
 
   @Test(expected = InvalidXMLException.class)
   public void testStartTextAfterRoot() throws InvalidXMLException {
-    enterXMLInput("<root> txt </root>t");
+   enterXMLInput("<root> txt </root>t");
   }
 
-  private void assertOutputValidatorAndLogger(String expectedValidatorOutput, String expectedLoggerOutput) {
-    if (xmlParser instanceof XMLValidator)
-      assertEquals(expectedValidatorOutput, xmlParser.output());
-    else if (xmlParser instanceof  XMLInfoLogger) {
-      assertEquals(expectedLoggerOutput, xmlParser.output());
+  private void assertOutputValidatorAndLogger(XMLParser parser,String expectedValidatorOutput,
+      String expectedLoggerOutput) {
+    if (parser instanceof XMLValidator)
+      assertEquals(expectedValidatorOutput, parser.output());
+    else if (parser instanceof  XMLInfoLogger) {
+      assertEquals(expectedLoggerOutput, parser.output());
     }
   }
 
   @Test()
   public void testOutputNoInput() {
-    assertOutputValidatorAndLogger("Status:Empty", "");
+    assertOutputValidatorAndLogger(xmlParser,"Status:Empty", "");
   }
 
   @Test()
   public void testValidOutput() throws InvalidXMLException {
-    enterXMLInput("<root>txt</root>");
-    assertOutputValidatorAndLogger("Status:Valid",
+    XMLParser resultParser = enterXMLInput("<root>txt</root>");
+    assertOutputValidatorAndLogger(resultParser,"Status:Valid",
         "Started:root"
         + "\nCharacters:txt"
         + "\nEnded:root");
@@ -143,16 +144,16 @@ public abstract class AbstractXMLParserTest {
 
   @Test()
   public void testValidOutputNoText() throws InvalidXMLException {
-    enterXMLInput("<root></root>");
-    assertOutputValidatorAndLogger("Status:Valid",
+    XMLParser resultParser = enterXMLInput("<root></root>");
+    assertOutputValidatorAndLogger(resultParser,"Status:Valid",
         "Started:root"
             + "\nEnded:root");
   }
 
   @Test()
   public void testValidOutputTextAndTagWithText() throws InvalidXMLException {
-    enterXMLInput("<root>txt<tag>txt2</tag></root>");
-    assertOutputValidatorAndLogger("Status:Valid",
+    XMLParser resultParser = enterXMLInput("<root>txt<tag>txt2</tag></root>");
+    assertOutputValidatorAndLogger(resultParser,"Status:Valid",
         "Started:root"
             + "\nCharacters:txt"
             + "\nStarted:tag"
@@ -163,8 +164,8 @@ public abstract class AbstractXMLParserTest {
 
   @Test()
   public void testValidOutputTextAndTag() throws InvalidXMLException {
-    enterXMLInput("<root>txt<tag></tag></root>");
-    assertOutputValidatorAndLogger("Status:Valid",
+    XMLParser resultParser = enterXMLInput("<root>txt<tag></tag></root>");
+    assertOutputValidatorAndLogger(resultParser,"Status:Valid",
         "Started:root"
             + "\nCharacters:txt"
             + "\nStarted:tag"
@@ -174,8 +175,8 @@ public abstract class AbstractXMLParserTest {
 
   @Test()
   public void testValidOutputDoubleNoText() throws InvalidXMLException {
-    enterXMLInput("<root><tag></tag></root>");
-    assertOutputValidatorAndLogger("Status:Valid",
+    XMLParser resultParser = enterXMLInput("<root><tag></tag></root>");
+    assertOutputValidatorAndLogger(resultParser,"Status:Valid",
         "Started:root"
             + "\nStarted:tag"
             + "\nEnded:tag"
@@ -184,8 +185,8 @@ public abstract class AbstractXMLParserTest {
 
   @Test()
   public void testValidOutputDoubleChildTag() throws InvalidXMLException {
-    enterXMLInput("<root><tag></tag><tag2></tag2></root>");
-    assertOutputValidatorAndLogger("Status:Valid",
+    XMLParser resultParser = enterXMLInput("<root><tag></tag><tag2></tag2></root>");
+    assertOutputValidatorAndLogger(resultParser,"Status:Valid",
         "Started:root"
             + "\nStarted:tag"
             + "\nEnded:tag"
@@ -196,8 +197,8 @@ public abstract class AbstractXMLParserTest {
 
   @Test()
   public void testValidOutputDoubleChildTagWithText() throws InvalidXMLException {
-    enterXMLInput("<root><tag></tag><tag2>txt</tag2></root>");
-    assertOutputValidatorAndLogger("Status:Valid",
+    XMLParser resultParser = enterXMLInput("<root><tag></tag><tag2>txt</tag2></root>");
+    assertOutputValidatorAndLogger(resultParser,"Status:Valid",
         "Started:root"
             + "\nStarted:tag"
             + "\nEnded:tag"
@@ -209,48 +210,48 @@ public abstract class AbstractXMLParserTest {
 
   @Test()
   public void testIncompleteRootStartTag0() throws InvalidXMLException {
-    enterXMLInput("<");
-    assertOutputValidatorAndLogger("Status:Incomplete", "");
+    XMLParser resultParser = enterXMLInput("<");
+    assertOutputValidatorAndLogger(resultParser,"Status:Incomplete", "");
   }
 
   @Test()
   public void testIncompleteRootStartTag1() throws InvalidXMLException {
-    enterXMLInput("<r");
-    assertOutputValidatorAndLogger("Status:Incomplete", "");
+    XMLParser resultParser = enterXMLInput("<r");
+    assertOutputValidatorAndLogger(resultParser,"Status:Incomplete", "");
   }
 
   @Test()
   public void testCompleteRootStartTag() throws InvalidXMLException {
-    enterXMLInput("<root>");
-    assertOutputValidatorAndLogger("Status:Incomplete",
+    XMLParser resultParser = enterXMLInput("<root>");
+    assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root");
   }
 
   @Test()
   public void testIncompleteText() throws InvalidXMLException {
-    enterXMLInput("<root>a");
-    assertOutputValidatorAndLogger("Status:Incomplete",
+    XMLParser resultParser = enterXMLInput("<root>a");
+    assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root");
   }
 
   @Test()
   public void testIncompleteChildStartTag0() throws InvalidXMLException {
-    enterXMLInput("<root>a<");
-    assertOutputValidatorAndLogger("Status:Incomplete",
+    XMLParser resultParser = enterXMLInput("<root>a<");
+    assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root");
   }
 
   @Test()
   public void testIncompleteChildStartTag1() throws InvalidXMLException {
-    enterXMLInput("<root>a<tag");
-    assertOutputValidatorAndLogger("Status:Incomplete",
+    XMLParser resultParser = enterXMLInput("<root>a<tag");
+    assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root");
   }
 
   @Test()
   public void testCompleteChildStartTag() throws InvalidXMLException {
-    enterXMLInput("<root>a<tag>");
-    assertOutputValidatorAndLogger("Status:Incomplete",
+    XMLParser resultParser = enterXMLInput("<root>a<tag>");
+    assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root"
             + "\nCharacters:a"
             + "\nStarted:tag2");
@@ -258,8 +259,8 @@ public abstract class AbstractXMLParserTest {
 
   @Test()
   public void testIncompleteChildClosingTag0() throws InvalidXMLException {
-    enterXMLInput("<root>a<tag><");
-    assertOutputValidatorAndLogger("Status:Incomplete",
+    XMLParser resultParser = enterXMLInput("<root>a<tag><");
+    assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root"
             + "\nCharacters:a"
             + "\nStarted:tag2");
@@ -267,8 +268,8 @@ public abstract class AbstractXMLParserTest {
 
   @Test()
   public void testIncompleteChildClosingTag1() throws InvalidXMLException {
-    enterXMLInput("<root>a<tag></");
-    assertOutputValidatorAndLogger("Status:Incomplete",
+    XMLParser resultParser = enterXMLInput("<root>a<tag></");
+    assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root"
             + "\nCharacters:a"
             + "\nStarted:tag2");
@@ -276,8 +277,8 @@ public abstract class AbstractXMLParserTest {
 
   @Test()
   public void testIncompleteChildClosingTag2() throws InvalidXMLException {
-    enterXMLInput("<root>a<tag></tag");
-    assertOutputValidatorAndLogger("Status:Incomplete",
+    XMLParser resultParser = enterXMLInput("<root>a<tag></tag");
+    assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root"
             + "\nCharacters:a"
             + "\nStarted:tag2");
@@ -285,8 +286,8 @@ public abstract class AbstractXMLParserTest {
 
   @Test()
   public void testCompleteChildClosingTag() throws InvalidXMLException {
-    enterXMLInput("<root>a<tag></tag>");
-    assertOutputValidatorAndLogger("Status:Incomplete",
+    XMLParser resultParser = enterXMLInput("<root>a<tag></tag>");
+    assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root"
             + "\nCharacters:a"
             + "\nStarted:tag2"
@@ -295,8 +296,8 @@ public abstract class AbstractXMLParserTest {
 
   @Test()
   public void testIncompleteClosingRootTag0() throws InvalidXMLException {
-    enterXMLInput("<root>a<tag></tag><");
-    assertOutputValidatorAndLogger("Status:Incomplete",
+    XMLParser resultParser = enterXMLInput("<root>a<tag></tag><");
+    assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root"
             + "\nCharacters:a"
             + "\nStarted:tag2"
@@ -305,8 +306,8 @@ public abstract class AbstractXMLParserTest {
 
   @Test()
   public void testIncompleteClosingRootTag1() throws InvalidXMLException {
-    enterXMLInput("<root>a<tag></tag></");
-    assertOutputValidatorAndLogger("Status:Incomplete",
+    XMLParser resultParser = enterXMLInput("<root>a<tag></tag></");
+    assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root"
             + "\nCharacters:a"
             + "\nStarted:tag2"
@@ -315,8 +316,8 @@ public abstract class AbstractXMLParserTest {
 
   @Test()
   public void testIncompleteClosingRootTag2() throws InvalidXMLException {
-    enterXMLInput("<root>a<tag></tag></root");
-    assertOutputValidatorAndLogger("Status:Incomplete",
+    XMLParser resultParser = enterXMLInput("<root>a<tag></tag></root");
+    assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root"
             + "\nCharacters:a"
             + "\nStarted:tag2"
