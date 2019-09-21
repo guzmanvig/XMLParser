@@ -209,6 +209,19 @@ public abstract class AbstractXMLParserTest {
   }
 
   @Test()
+  public void testValidOutputDoubleText() throws InvalidXMLException {
+    XMLParser resultParser = enterXMLInput("<root>text1<tag></tag>text2</root>");
+    assertOutputValidatorAndLogger(resultParser,"Status:Valid",
+        "Started:root"
+            + "\nCharacters:txt1"
+            + "\nStarted:tag"
+            + "\nEnded:tag"
+            + "\nEnded:tag2"
+            + "\nCharacters:txt2"
+            + "\nEnded:root");
+  }
+
+  @Test()
   public void testIncompleteRootStartTag0() throws InvalidXMLException {
     XMLParser resultParser = enterXMLInput("<");
     assertOutputValidatorAndLogger(resultParser,"Status:Incomplete", "");
