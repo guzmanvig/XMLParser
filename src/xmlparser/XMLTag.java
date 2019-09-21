@@ -2,26 +2,40 @@ package xmlparser;
 
 public class XMLTag implements XMLElementComponent {
 
-  XMLTag() {
+  private final String currentTagString;
 
+  XMLTag(String currentTagString) {
+    this.currentTagString = currentTagString;
   }
 
   XMLTag(XMLTag xmlTag) {
-
+    this(xmlTag.currentTagString);
   }
 
-  private String getTagName(){
-    return "";
+  XMLTag() {
+    this("");
+  }
+
+  String getTagName(){
+    // Remove the first '<' and the last '/>'
+    return currentTagString.substring(1, currentTagString.length() - 3);
   }
 
   @Override
-  public void start(char startChar) throws InvalidXMLException {
-
+  public XMLTag start(char startChar) throws InvalidXMLException {
+    if (startChar != '<')
+      throw new InvalidXMLException("Invalid tag start character " + startChar);
+    String resultingTag = currentTagString + startChar;
+    return new XMLTag(resultingTag);
   }
 
   @Override
-  public void finish() {
+  public XMLTag createCopy() {
+    return new XMLTag(this);
+  }
 
+  public boolean isStartTag() {
+    return false;
   }
 
   @Override
@@ -30,7 +44,12 @@ public class XMLTag implements XMLElementComponent {
   }
 
   @Override
-  public boolean processChar(char c) throws InvalidXMLException {
+  public boolean isFinished() {
     return false;
+  }
+
+  @Override
+  public XMLTag processChar(char c) throws InvalidXMLException {
+    return null;
   }
 }

@@ -11,11 +11,10 @@ public class XMLString implements XMLElementComponent {
   }
 
   @Override
-  public void start(char startChar) throws InvalidXMLException {
-
+  public XMLString start(char startChar) throws InvalidXMLException {
+      return null;
   }
 
-  @Override
   public void finish() {
 
   }
@@ -26,7 +25,7 @@ public class XMLString implements XMLElementComponent {
   }
 
   @Override
-  public boolean processChar(char c) throws InvalidXMLException {
-    return false;
+  public XMLString processChar(char c) throws InvalidXMLException {
+    return null;
   }
 }
