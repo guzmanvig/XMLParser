@@ -1,44 +1,37 @@
 package xmlparser;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+
 
 class XMLElement implements XMLElementComponent{
 
-  private final List<XMLElementComponent> children;
-  private final boolean isComplete;
+  private ArrayList<XMLElementComponent> children;
+  private boolean isComplete;
 
-  private final XMLTag tagBeingProcessed;
-  private final XMLString stringBeingProcessed;
-  private final XMLElement childElementBeingProcessed;
+  private XMLTag tagBeingProcessed;
+  private XMLString stringBeingProcessed;
+  private XMLElement childElementBeingProcessed;
 
 
   XMLElement() {
 
-    children = Collections.unmodifiableList(new ArrayList<>());
+    children = new ArrayList<>();
     isComplete = false;
     tagBeingProcessed = new XMLTag();
     stringBeingProcessed = new XMLString();
     childElementBeingProcessed = new XMLElement();
   }
 
-  XMLElement(List<XMLElementComponent> children, boolean isComplete, XMLTag tagBeingProcessed,
-      XMLString stringBeingProcessed, XMLElement elementBeingProcessed) {
-
-    this.children =  Collections.unmodifiableList(copyChildren(children));
-    this.isComplete = isComplete;
-    this.tagBeingProcessed = new XMLTag(tagBeingProcessed);
-    this.stringBeingProcessed = new XMLString(stringBeingProcessed);
-    this.childElementBeingProcessed = new XMLElement(elementBeingProcessed);
-  }
-
   XMLElement(XMLElement xmlElement) {
-    this(xmlElement.children, xmlElement.isComplete, xmlElement.tagBeingProcessed,
-        xmlElement.stringBeingProcessed, xmlElement.childElementBeingProcessed);
+
+    this.children =  copyChildren(xmlElement.children);
+    this.isComplete = xmlElement.isComplete;
+    this.tagBeingProcessed = new XMLTag(xmlElement.tagBeingProcessed);
+    this.stringBeingProcessed = new XMLString(xmlElement.stringBeingProcessed);
+    this.childElementBeingProcessed = new XMLElement(xmlElement.childElementBeingProcessed);
   }
 
-  private ArrayList<XMLElementComponent> copyChildren(List<XMLElementComponent> childrenToCopy) {
+  private ArrayList<XMLElementComponent> copyChildren(ArrayList<XMLElementComponent> childrenToCopy) {
     ArrayList<XMLElementComponent> returnArray = new ArrayList<>();
     for (XMLElementComponent xmlChildElement : childrenToCopy){
       returnArray.add(xmlChildElement.createCopy());
@@ -47,16 +40,9 @@ class XMLElement implements XMLElementComponent{
   }
 
 
-
-  private XMLElement startTag(char startChar) throws InvalidXMLException {
-    XMLTag resultingTagBeingProcessed = tagBeingProcessed.start(startChar);
-    return new XMLElement(this.children, this.isComplete, resultingTagBeingProcessed,
-        this.stringBeingProcessed, this.childElementBeingProcessed);
-  }
-
   @Override
-  public XMLElement start(char startChar) throws InvalidXMLException {
-    return startTag(startChar);
+  public void start(char startChar) throws InvalidXMLException {
+    tagBeingProcessed.start(startChar);
   }
 
   @Override
@@ -64,10 +50,6 @@ class XMLElement implements XMLElementComponent{
     return false;
   }
 
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
 
   @Override
   public XMLElement createCopy() {
@@ -75,107 +57,86 @@ class XMLElement implements XMLElementComponent{
   }
 
   @Override
-  public XMLElement processChar(char c) throws InvalidXMLException {
-    XMLElement returnElement;
+  public boolean processChar(char c) throws InvalidXMLException {
 
     if (childIsBeingProcessed()) {
-      returnElement = childElementBeingProcessed.processChar(c);
+      childElementBeingProcessed.processChar(c);
     } else {
 
       if (tagIsBeingProcessed()){
-        XMLTag processedTag = tagBeingProcessed.processChar(c);
-        if (processedTag.isFinished()){ //TODO: shouldnt check when is finished but on each letter compare with the start tag
-          ArrayList<XMLElementComponent> newChildren = finishProcessingTag(processedTag);
-          returnElement = new XMLElement(newChildren, isComplete, processedTag,
-              stringBeingProcessed, childElementBeingProcessed);
-        } else {
-          returnElement = new XMLElement(children, isComplete, processedTag,
-              stringBeingProcessed, childElementBeingProcessed);
+        boolean finished = tagBeingProcessed.processChar(c);
+        if (finished){ //TODO: shouldnt check when is finished but on each letter compare with the start tag
+          finishProcessingTag();
         }
 
       } else if (stringIsBeingProcessed()) {
-        XMLString processedString = stringBeingProcessed.processChar(c);
-        if (processedString.isFinished()) {
-          finishPorcessingString(processedString);
+        boolean finished = stringBeingProcessed.processChar(c);
+        if (finished) {
+          finishProcessingString(c);
         }
-      } else if (!isComplete)  {
-        startTag(c)
+
       } else {
-        throw ex
+        throw new InvalidXMLException("XML ended, cannot add char");
       }
 
     }
+
+    return isComplete;
   }
 
-  boolean tagIsBeingProcessed() {
-    return tagBeingProcessed.isStarted() && !tagBeingProcessed.isFinished();
+  private boolean childIsBeingProcessed() {
+    return childElementBeingProcessed.isStarted();
   }
 
-  ArrayList<XMLElementComponent> finishProcessingTag(XMLTag tag) throws InvalidXMLException {
-    if (tag.isStartTag()) {
-      return finishProcessingStartTag(tag);
+  private boolean tagIsBeingProcessed() {
+    return tagBeingProcessed.isStarted();
+  }
+
+  private void finishProcessingTag() throws InvalidXMLException {
+    if (tagBeingProcessed.isStartTag()) {
+      finishProcessingStartTag();
     } else {
-      return finishProcessingEndTag(tag);
+      finishProcessingEndTag();
     }
   }
 
-  ArrayList<XMLElementComponent> finishProcessingStartTag(XMLTag tag) throws InvalidXMLException {
-    ArrayList<XMLElementComponent> childrenCopy = copyChildren(children);
-    if (childrenCopy.isEmpty()) {
-      childrenCopy.add(tag);
-    } else if (!tag.getTagName().equals(getStartTagName())) {
-      childrenCopy.add(createChild(tag));
+  private void finishProcessingStartTag() throws InvalidXMLException {
+    if (children.isEmpty()) {
+      children.add(tagBeingProcessed);
+    } else if (!tagBeingProcessed.getTagName().equals(getStartTagName())) {
+      children.add(createChildAndAddTag(tagBeingProcessed));
     } else {
       throw new InvalidXMLException("Cannot add child with same tag as parent");
     }
-    return childrenCopy;
   }
 
   private String getStartTagName() {
     return ((XMLTag)children.get(0)).getTagName();
   }
 
-  private XMLElement createChild(XMLTag startTag) {
-    ArrayList<XMLElementComponent> children = new ArrayList<>();
-    children.add(startTag);
-    boolean isComplete = false;
-    XMLTag tagBeingProcessed = new XMLTag();
-    XMLString stringBeingProcessed = new XMLString();
-    XMLElement childElementBeingProcessed = new XMLElement();
-    return new XMLElement(children, isComplete, tagBeingProcessed,
-        stringBeingProcessed, childElementBeingProcessed);
+  private XMLElement createChildAndAddTag(XMLTag startTag) {
+    XMLElement childElement = new XMLElement();
+    childElement.children.add(startTag);
+    return childElement;
   }
 
 
-  ArrayList<XMLElementComponent> finishProcessingEndTag(XMLTag tag) throws InvalidXMLException {
-    ArrayList<XMLElementComponent> childrenCopy = copyChildren(children);
-    if (tag.getTagName().equals(getStartTagName())) {
-      childrenCopy.add(tag);
+  private void finishProcessingEndTag() throws InvalidXMLException {
+    if (tagBeingProcessed.getTagName().equals(getStartTagName())) {
+      children.add(tagBeingProcessed);
+      isComplete = true;
     } else {
       throw new InvalidXMLException("Ending tag should have the same name as starting tag");
     }
-    return childrenCopy;
   }
 
-  boolean stringIsBeingProcessed() {
-    return stringBeingProcessed.isStarted() && !stringBeingProcessed.isFinished();
+  private boolean stringIsBeingProcessed() {
+    return stringBeingProcessed.isStarted();
   }
 
-  ArrayList<XMLElementComponent> finishProcessingString(XMLString string) {
-    ArrayList<XMLElementComponent> childrenCopy = copyChildren(children);
-    childrenCopy.add(string)
-
+  private void finishProcessingString(char lastProcessedCharacter) throws InvalidXMLException {
+    tagBeingProcessed.start(lastProcessedCharacter);
 
   }
-
-
-
-  boolean childIsBeingProcessed() {
-    return childElementBeingProcessed.isStarted() && !childElementBeingProcessed.isFinished();
-  }
-
-
-
-
 
 }

@@ -1,6 +1,8 @@
 package xmlparser;
 
-public class XMLString implements XMLElementComponent {
+class XMLString implements XMLElementComponent {
+
+  private String currentString;
 
   XMLString() {
 
@@ -11,12 +13,13 @@ public class XMLString implements XMLElementComponent {
   }
 
   @Override
-  public XMLString start(char startChar) throws InvalidXMLException {
-      return null;
+  public void start(char startChar) throws InvalidXMLException {
+    currentString = "" + startChar;
   }
 
-  public void finish() {
-
+  @Override
+  public XMLString createCopy() {
+    return null;
   }
 
   @Override
@@ -25,7 +28,7 @@ public class XMLString implements XMLElementComponent {
   }
 
   @Override
-  public XMLString processChar(char c) throws InvalidXMLException {
-    return null;
+  public boolean processChar(char c) throws InvalidXMLException {
+    return false;
   }
 }

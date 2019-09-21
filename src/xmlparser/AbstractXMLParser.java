@@ -2,20 +2,28 @@ package xmlparser;
 
 abstract class AbstractXMLParser implements XMLParser{
 
-  final XMLElement rootElement = new XMLElement();
+  final XMLElement rootElement;
+
+  AbstractXMLParser() {
+    this(new XMLElement());
+  }
+
+  AbstractXMLParser(XMLElement rootElement) {
+    this.rootElement = rootElement;
+  }
 
   abstract XMLParser createXMLParser(XMLElement rootElement);
 
   @Override
   public XMLParser input(char c) throws InvalidXMLException {
-    XMLElement resultingRootElement;
-    if (!rootElement.isStarted()) {
-      resultingRootElement = rootElement.start(c);
+    XMLElement rootElementCopy = new XMLElement(rootElement);
+    if (!rootElementCopy.isStarted()) {
+      rootElementCopy.start(c);
     } else {
-      resultingRootElement = rootElement.processChar(c);
+      rootElementCopy.processChar(c);
     }
 
-    return createXMLParser(resultingRootElement);
+    return createXMLParser(rootElementCopy);
   }
 
 }
