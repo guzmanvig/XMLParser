@@ -77,6 +77,9 @@ class XMLTag implements XMLElementComponent {
     } else if (isEndFirstSpecialCharacter(c)) {
       currentTagString = currentTagString + c;
     } else if (isEndSecondSpecialCharacter(c)) {
+      if (currentTagString.length() == 1) {
+        throw new InvalidXMLException("Tag must have a non empty name");
+      }
       currentTagString = currentTagString + c;
       isComplete = true;
     } else if (isValidCharacter(c)) {
@@ -97,7 +100,7 @@ class XMLTag implements XMLElementComponent {
     return c == '>';
   }
 
-  private static boolean isStartSpecialCharacter(char c) {
+  static boolean isStartSpecialCharacter(char c) {
     return c == '<';
   }
 

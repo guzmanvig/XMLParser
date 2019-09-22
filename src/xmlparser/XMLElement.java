@@ -39,7 +39,7 @@ class XMLElement implements XMLElementComponent{
     }
 
     if(xmlElement.childElementBeingProcessed != null && (xmlElement.childElementBeingProcessed.isStarted())) {
-      this.childElementBeingProcessed = (XMLElement) children.get(xmlElement.children.indexOf(xmlElement.childElementBeingProcessed));
+      this.childElementBeingProcessed = new XMLElement(xmlElement.childElementBeingProcessed);
     }  else {
       childElementBeingProcessed = new XMLElement();
     }
@@ -51,6 +51,14 @@ class XMLElement implements XMLElementComponent{
       returnArray.add(xmlChildElement.createCopy());
     }
     return returnArray;
+  }
+
+  ArrayList<XMLElementComponent> getChildren() {
+    return children;
+  }
+
+  XMLElement getChildBeingProcessed() {
+    return childElementBeingProcessed;
   }
 
   @Override
@@ -73,6 +81,9 @@ class XMLElement implements XMLElementComponent{
     if (childIsBeingProcessed()) {
 
       childElementBeingProcessed.processChar(c);
+      if (childElementBeingProcessed.isCompleted()) {
+        children.add(childElementBeingProcessed);
+      }
 
     } else if (tagIsBeingProcessed()){
 
@@ -95,7 +106,11 @@ class XMLElement implements XMLElementComponent{
       isStarted = true;
       startTag(c);
     } else if (!isCompleted()) {
-      startString(c);
+      if (XMLTag.isStartSpecialCharacter(c)) {
+        startTag(c);
+      } else {
+        startString(c);
+      }
     } else {
       throw new InvalidXMLException("Cannot add char. No open element");
     }
@@ -110,6 +125,9 @@ class XMLElement implements XMLElementComponent{
   }
 
   private void checkIfValidEndTag() throws InvalidXMLException {
+    if (children.isEmpty()) {
+      throw new InvalidXMLException("Element cannot start with end tag");
+    }
     XMLTag startTag = (XMLTag) children.get(0);
     String startTagName = startTag.getTagName();
     String currentlyEndTagName = tagBeingProcessed.getTagName();
@@ -133,7 +151,6 @@ class XMLElement implements XMLElementComponent{
       children.add(tagBeingProcessed);
     } else if (!tagBeingProcessed.getTagName().equals(getStartTagName())) {
       childElementBeingProcessed = createChildAndAddTag(tagBeingProcessed);
-      children.add(childElementBeingProcessed);
     } else {
       throw new InvalidXMLException("Cannot add child with same tag as parent");
     }

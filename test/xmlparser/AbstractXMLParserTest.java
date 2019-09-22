@@ -15,7 +15,6 @@ public abstract class AbstractXMLParserTest {
   public static final class XMLValidatorTest extends AbstractXMLParserTest {
     @Override
     protected XMLParser createXMLParser() {
-      System.out.print("Create XMLValidator");
       return new XMLValidator();
     }
   }
@@ -51,7 +50,7 @@ public abstract class AbstractXMLParserTest {
     enterXMLInput(">");
   }
 
-  @Test//(expected = InvalidXMLException.class)
+  @Test(expected = InvalidXMLException.class)
   public void testImproperNesting0() throws InvalidXMLException {
     enterXMLInput("<root> text <tag>a</r");
   }
@@ -78,7 +77,7 @@ public abstract class AbstractXMLParserTest {
 
   @Test(expected = InvalidXMLException.class)
   public void testInvalidCharacterInTag1() throws InvalidXMLException {
-    XMLParser resultParser = enterXMLInput("<ro ");
+    enterXMLInput("<ro ");
   }
 
   @Test(expected = InvalidXMLException.class)
@@ -93,7 +92,7 @@ public abstract class AbstractXMLParserTest {
 
   @Test(expected = InvalidXMLException.class)
   public void testInvalidCharacterInTagStart0() throws InvalidXMLException {
-    XMLParser resultParser = enterXMLInput("<0");
+   enterXMLInput("<0");
   }
 
   @Test(expected = InvalidXMLException.class)
@@ -210,11 +209,10 @@ public abstract class AbstractXMLParserTest {
     XMLParser resultParser = enterXMLInput("<root>text1<tag></tag>text2</root>");
     assertOutputValidatorAndLogger(resultParser,"Status:Valid",
         "Started:root"
-            + "\nCharacters:txt1"
+            + "\nCharacters:text1"
             + "\nStarted:tag"
             + "\nEnded:tag"
-            + "\nEnded:tag2"
-            + "\nCharacters:txt2"
+            + "\nCharacters:text2"
             + "\nEnded:root");
   }
 
@@ -264,7 +262,7 @@ public abstract class AbstractXMLParserTest {
     assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root"
             + "\nCharacters:a"
-            + "\nStarted:tag2");
+            + "\nStarted:tag");
   }
 
   @Test()
@@ -273,7 +271,7 @@ public abstract class AbstractXMLParserTest {
     assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root"
             + "\nCharacters:a"
-            + "\nStarted:tag2");
+            + "\nStarted:tag");
   }
 
   @Test()
@@ -282,7 +280,7 @@ public abstract class AbstractXMLParserTest {
     assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root"
             + "\nCharacters:a"
-            + "\nStarted:tag2");
+            + "\nStarted:tag");
   }
 
   @Test()
@@ -291,7 +289,7 @@ public abstract class AbstractXMLParserTest {
     assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root"
             + "\nCharacters:a"
-            + "\nStarted:tag2");
+            + "\nStarted:tag");
   }
 
   @Test()
@@ -300,8 +298,8 @@ public abstract class AbstractXMLParserTest {
     assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root"
             + "\nCharacters:a"
-            + "\nStarted:tag2"
-            + "\nEnded:tag2");
+            + "\nStarted:tag"
+            + "\nEnded:tag");
   }
 
   @Test()
@@ -310,8 +308,8 @@ public abstract class AbstractXMLParserTest {
     assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root"
             + "\nCharacters:a"
-            + "\nStarted:tag2"
-            + "\nEnded:tag2");
+            + "\nStarted:tag"
+            + "\nEnded:tag");
   }
 
   @Test()
@@ -320,8 +318,8 @@ public abstract class AbstractXMLParserTest {
     assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root"
             + "\nCharacters:a"
-            + "\nStarted:tag2"
-            + "\nEnded:tag2");
+            + "\nStarted:tag"
+            + "\nEnded:tag");
   }
 
   @Test()
@@ -330,8 +328,8 @@ public abstract class AbstractXMLParserTest {
     assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root"
             + "\nCharacters:a"
-            + "\nStarted:tag2"
-            + "\nEnded:tag2");
+            + "\nStarted:tag"
+            + "\nEnded:tag");
   }
 
 }

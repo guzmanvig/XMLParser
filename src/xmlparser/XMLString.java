@@ -11,6 +11,11 @@ class XMLString implements XMLElementComponent {
 
   XMLString(XMLString xmlString) {
     currentString = xmlString.currentString;
+    isCompleted = xmlString.isCompleted;
+  }
+
+  String getString() {
+    return currentString;
   }
 
   @Override

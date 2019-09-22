@@ -2,6 +2,11 @@ package xmlparser;
 
 public final class XMLValidator extends AbstractXMLParser {
 
+  private static final String EMPTY_STATUS = "Status:Empty";
+  private static final String INCOMPLETE_STATUS = "Status:Incomplete";
+  private static final String VALID_STATUS =  "Status:Valid";
+
+
   XMLValidator() {
     super(new XMLElement());
   }
@@ -17,6 +22,14 @@ public final class XMLValidator extends AbstractXMLParser {
 
   @Override
   public String output() {
-    return null;
+    if (!rootElement.isStarted()) {
+      return EMPTY_STATUS;
+    } else {
+      if (rootElement.isCompleted()) {
+        return VALID_STATUS;
+      } else {
+        return INCOMPLETE_STATUS;
+      }
+    }
   }
 }
