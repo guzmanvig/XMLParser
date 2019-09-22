@@ -1,5 +1,3 @@
-package xmlparser;
-
 class XMLString implements XMLElementComponent {
 
   private String currentString;

@@ -1,5 +1,3 @@
-package xmlparser;
-
 /**
  * This class represents a checked exception. This is used by XMLParser
  * implementations to signal invalid XML.

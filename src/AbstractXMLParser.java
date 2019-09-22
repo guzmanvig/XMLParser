@@ -1,5 +1,3 @@
-package xmlparser;
-
 abstract class AbstractXMLParser implements XMLParser{
 
   protected XMLElement rootElement;

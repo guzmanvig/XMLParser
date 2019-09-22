@@ -1,5 +1,3 @@
-package xmlparser;
-
 class XMLTag implements XMLElementComponent {
 
   private String currentTagString = "";

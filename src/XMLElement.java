@@ -1,5 +1,3 @@
-package xmlparser;
-
 import java.util.ArrayList;
 
 

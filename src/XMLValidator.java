@@ -1,5 +1,3 @@
-package xmlparser;
-
 public final class XMLValidator extends AbstractXMLParser {
 
   private static final String EMPTY_STATUS = "Status:Empty";

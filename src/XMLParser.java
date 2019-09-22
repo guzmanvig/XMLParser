@@ -1,5 +1,3 @@
-package xmlparser;
-
 /**
  * This interface represents a simple XML parser that accepts input one
  * character at a time.

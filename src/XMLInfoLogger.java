@@ -1,5 +1,3 @@
-package xmlparser;
-
 import java.util.ArrayList;
 
 public final class XMLInfoLogger extends AbstractXMLParser{
@@ -27,7 +25,6 @@ public final class XMLInfoLogger extends AbstractXMLParser{
   @Override
   public String output() {
     processXMLElement(rootElement);
-    removeLastCR();
     return output;
   }
 
@@ -35,7 +32,7 @@ public final class XMLInfoLogger extends AbstractXMLParser{
     processChildren(element);
     XMLElement childBeingProcessed = element.getChildBeingProcessed();
     if (childBeingProcessed != null && !childBeingProcessed.isCompleted()) {
-      processChildren(element.getChildBeingProcessed());
+      processXMLElement(element.getChildBeingProcessed());
     }
   }
 
@@ -71,12 +68,6 @@ public final class XMLInfoLogger extends AbstractXMLParser{
     output = output + stringToAppend + "\n";
   }
 
-  private void removeLastCR(){
-    if (output.length() != 0) {
-      output = output.substring(0, output.length() -1);
-    }
-  }
-
   private void processXMLString(XMLString string) {
     appendToOutput(CHARACTERS_STRING + string.getString());
   }
@@ -85,7 +76,7 @@ public final class XMLInfoLogger extends AbstractXMLParser{
     if (childBeingProcessed == null) {
       return false;
     } else {
-      return (childBeingProcessed.getChildren().size() != 0);
+      return (!childBeingProcessed.isCompleted() && childBeingProcessed.getChildren().size() != 0);
     }
   }
 

@@ -1,5 +1,3 @@
-package xmlparser;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -119,7 +117,7 @@ public abstract class AbstractXMLParserTest {
       String expectedLoggerOutput) {
     if (parser instanceof XMLValidator)
       assertEquals(expectedValidatorOutput, parser.output());
-    else if (parser instanceof  XMLInfoLogger) {
+    else if (parser instanceof XMLInfoLogger) {
       assertEquals(expectedLoggerOutput, parser.output());
     }
   }
@@ -135,7 +133,8 @@ public abstract class AbstractXMLParserTest {
     assertOutputValidatorAndLogger(resultParser,"Status:Valid",
         "Started:root"
         + "\nCharacters:txt"
-        + "\nEnded:root");
+        + "\nEnded:root"
+            + "\n");
   }
 
   @Test()
@@ -143,7 +142,8 @@ public abstract class AbstractXMLParserTest {
     XMLParser resultParser = enterXMLInput("<root></root>");
     assertOutputValidatorAndLogger(resultParser,"Status:Valid",
         "Started:root"
-            + "\nEnded:root");
+            + "\nEnded:root"
+            + "\n");
   }
 
   @Test()
@@ -155,7 +155,8 @@ public abstract class AbstractXMLParserTest {
             + "\nStarted:tag"
             + "\nCharacters:txt2"
             + "\nEnded:tag"
-            + "\nEnded:root");
+            + "\nEnded:root"
+            + "\n");
   }
 
   @Test()
@@ -166,7 +167,8 @@ public abstract class AbstractXMLParserTest {
             + "\nCharacters:txt"
             + "\nStarted:tag"
             + "\nEnded:tag"
-            + "\nEnded:root");
+            + "\nEnded:root"
+            + "\n");
   }
 
   @Test()
@@ -176,7 +178,8 @@ public abstract class AbstractXMLParserTest {
         "Started:root"
             + "\nStarted:tag"
             + "\nEnded:tag"
-            + "\nEnded:root");
+            + "\nEnded:root"
+            + "\n");
   }
 
   @Test()
@@ -188,7 +191,8 @@ public abstract class AbstractXMLParserTest {
             + "\nEnded:tag"
             + "\nStarted:tag2"
             + "\nEnded:tag2"
-            + "\nEnded:root");
+            + "\nEnded:root"
+            + "\n");
   }
 
   @Test()
@@ -201,7 +205,8 @@ public abstract class AbstractXMLParserTest {
             + "\nStarted:tag2"
             + "\nCharacters:txt"
             + "\nEnded:tag2"
-            + "\nEnded:root");
+            + "\nEnded:root"
+            + "\n");
   }
 
   @Test()
@@ -213,7 +218,8 @@ public abstract class AbstractXMLParserTest {
             + "\nStarted:tag"
             + "\nEnded:tag"
             + "\nCharacters:text2"
-            + "\nEnded:root");
+            + "\nEnded:root"
+            + "\n");
   }
 
   @Test()
@@ -232,28 +238,28 @@ public abstract class AbstractXMLParserTest {
   public void testCompleteRootStartTag() throws InvalidXMLException {
     XMLParser resultParser = enterXMLInput("<root>");
     assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
-        "Started:root");
+        "Started:root\n");
   }
 
   @Test()
   public void testIncompleteText() throws InvalidXMLException {
     XMLParser resultParser = enterXMLInput("<root>a");
     assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
-        "Started:root");
+        "Started:root\n");
   }
 
   @Test()
   public void testIncompleteChildStartTag0() throws InvalidXMLException {
     XMLParser resultParser = enterXMLInput("<root>a<");
     assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
-        "Started:root");
+        "Started:root\n");
   }
 
   @Test()
   public void testIncompleteChildStartTag1() throws InvalidXMLException {
     XMLParser resultParser = enterXMLInput("<root>a<tag");
     assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
-        "Started:root");
+        "Started:root\n");
   }
 
   @Test()
@@ -262,7 +268,8 @@ public abstract class AbstractXMLParserTest {
     assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root"
             + "\nCharacters:a"
-            + "\nStarted:tag");
+            + "\nStarted:tag"
+            + "\n");
   }
 
   @Test()
@@ -271,7 +278,8 @@ public abstract class AbstractXMLParserTest {
     assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root"
             + "\nCharacters:a"
-            + "\nStarted:tag");
+            + "\nStarted:tag"
+            + "\n");
   }
 
   @Test()
@@ -280,7 +288,8 @@ public abstract class AbstractXMLParserTest {
     assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root"
             + "\nCharacters:a"
-            + "\nStarted:tag");
+            + "\nStarted:tag"
+            + "\n");
   }
 
   @Test()
@@ -289,7 +298,8 @@ public abstract class AbstractXMLParserTest {
     assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
         "Started:root"
             + "\nCharacters:a"
-            + "\nStarted:tag");
+            + "\nStarted:tag"
+            + "\n");
   }
 
   @Test()
@@ -299,7 +309,8 @@ public abstract class AbstractXMLParserTest {
         "Started:root"
             + "\nCharacters:a"
             + "\nStarted:tag"
-            + "\nEnded:tag");
+            + "\nEnded:tag"
+            + "\n");
   }
 
   @Test()
@@ -309,7 +320,8 @@ public abstract class AbstractXMLParserTest {
         "Started:root"
             + "\nCharacters:a"
             + "\nStarted:tag"
-            + "\nEnded:tag");
+            + "\nEnded:tag"
+            + "\n");
   }
 
   @Test()
@@ -319,7 +331,8 @@ public abstract class AbstractXMLParserTest {
         "Started:root"
             + "\nCharacters:a"
             + "\nStarted:tag"
-            + "\nEnded:tag");
+            + "\nEnded:tag"
+            + "\n");
   }
 
   @Test()
@@ -329,7 +342,30 @@ public abstract class AbstractXMLParserTest {
         "Started:root"
             + "\nCharacters:a"
             + "\nStarted:tag"
-            + "\nEnded:tag");
+            + "\nEnded:tag"
+            + "\n");
+  }
+
+  @Test()
+  public void testIncompleteEndTag() throws InvalidXMLException {
+    XMLParser resultParser = enterXMLInput("<html> <head>This is a header </head> <");
+    assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
+        "Started:html"
+            + "\nCharacters: "
+            + "\nStarted:head"
+            + "\nCharacters:This is a header "
+            + "\nEnded:head"
+            + "\n");
+  }
+
+  @Test()
+  public void testIncompleteTripleChild() throws InvalidXMLException {
+    XMLParser resultParser = enterXMLInput("<html><div><p>");
+    assertOutputValidatorAndLogger(resultParser,"Status:Incomplete",
+        "Started:html"
+            + "\nStarted:div"
+            + "\nStarted:p"
+            + "\n");
   }
 
 }
