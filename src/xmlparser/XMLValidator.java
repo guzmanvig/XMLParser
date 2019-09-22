@@ -2,8 +2,17 @@ package xmlparser;
 
 public final class XMLValidator extends AbstractXMLParser {
 
-  public XMLValidator() {
+  XMLValidator() {
+    super(new XMLElement());
+  }
 
+  XMLValidator(XMLElement rootElement) {
+    super(rootElement);
+  }
+
+  @Override
+  XMLParser createXMLParser(XMLElement rootElement) {
+    return new XMLValidator(rootElement);
   }
 
   @Override

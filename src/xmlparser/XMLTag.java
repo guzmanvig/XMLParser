@@ -2,28 +2,45 @@ package xmlparser;
 
 class XMLTag implements XMLElementComponent {
 
-  private String currentTagString;
-
-  XMLTag(String currentTagString) {
-    this.currentTagString = currentTagString;
-  }
+  private String currentTagString = "";
+  private boolean isComplete = false;
 
   XMLTag(XMLTag xmlTag) {
-    this(xmlTag.currentTagString);
+    currentTagString = xmlTag.currentTagString;
+    isComplete = xmlTag.isComplete;
   }
 
   XMLTag() {
-    this("");
   }
 
   String getTagName(){
-    // Remove the first '<' and the last '/>'
-    return currentTagString.substring(1, currentTagString.length() - 3);
+    //TODO: clean this
+    int tagLength = currentTagString.length();
+    if (tagLength == 0 || tagLength == 1) {
+      return "";
+    } else {
+      if (currentTagString.charAt(1) == '/'){
+        if (currentTagString.length() == 2) {
+          return "";
+        } else {
+          if (currentTagString.charAt(currentTagString.length() - 1) == '>') {
+            return currentTagString.substring(2, currentTagString.length() - 1);
+          } else {
+            return currentTagString.substring(2);
+          }
+        }
+      } else {
+        if (currentTagString.charAt(currentTagString.length() - 1) == '>') {
+          return currentTagString.substring(1, currentTagString.length() - 1);
+        } else {
+          return currentTagString.substring(1);
+        }
+      }
+    }
   }
 
-  @Override
-  public void start(char startChar) throws InvalidXMLException {
-    if (isStartSpecialCharacter(startChar))
+  private void start(char startChar) throws InvalidXMLException {
+    if (!isStartSpecialCharacter(startChar))
       throw new InvalidXMLException("Invalid tag start character " + startChar);
     currentTagString = "" + startChar;
   }
@@ -34,7 +51,12 @@ class XMLTag implements XMLElementComponent {
   }
 
   boolean isStartTag() {
-    return currentTagString.charAt(1) != '/';
+    if (currentTagString.length() >= 2) {
+      return currentTagString.charAt(1) != '/';
+    } else {
+      //Since we don't now, we assume it is
+      return true;
+    }
   }
 
   @Override
@@ -42,31 +64,40 @@ class XMLTag implements XMLElementComponent {
     return currentTagString.length() != 0;
   }
 
-
   @Override
-  public boolean processChar(char c) throws InvalidXMLException {
-    boolean finished = false;
-    if (isValidCharacter(c)) {
-      if (hasOnlySpecialStartCharacter() && isInvalidFirstCharacter(c)) {
-          throw new InvalidXMLException("Invalid first character in tag: " + c);
-      } else {
-        currentTagString = currentTagString + c;
-        if (isEndSpecialCharacter(c)) {
-          finished = true;
-        }
-      }
-
-    } else {
-      throw new InvalidXMLException("Invalid character in tag: " + c);
-    }
-    return finished;
+  public boolean isCompleted() {
+    return isComplete;
   }
 
-  private boolean isEndSpecialCharacter(char c) {
+
+  @Override
+  public void processChar(char c) throws InvalidXMLException {
+    if (!isStarted()) {
+      start(c);
+    } else if (isEndFirstSpecialCharacter(c)) {
+      currentTagString = currentTagString + c;
+    } else if (isEndSecondSpecialCharacter(c)) {
+      currentTagString = currentTagString + c;
+      isComplete = true;
+    } else if (isValidCharacter(c)) {
+        if (hasOnlySpecialStartCharacter() && isInvalidFirstCharacter(c)) {
+          throw new InvalidXMLException("Invalid first character in tag: " + c);
+        }
+        currentTagString = currentTagString + c;
+    } else {
+        throw new InvalidXMLException("Invalid character in tag: " + c);
+    }
+  }
+
+  private static boolean isEndFirstSpecialCharacter(char c) {
+    return c == '/';
+  }
+
+  private static boolean isEndSecondSpecialCharacter(char c) {
     return c == '>';
   }
 
-  private boolean isStartSpecialCharacter(char c) {
+  private static boolean isStartSpecialCharacter(char c) {
     return c == '<';
   }
 

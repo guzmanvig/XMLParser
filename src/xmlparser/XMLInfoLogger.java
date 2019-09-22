@@ -2,8 +2,17 @@ package xmlparser;
 
 public final class XMLInfoLogger extends AbstractXMLParser{
 
-  public XMLInfoLogger() {
+  XMLInfoLogger() {
+    super(new XMLElement());
+  }
 
+  XMLInfoLogger(XMLElement rootElement) {
+    super(rootElement);
+  }
+
+  @Override
+  XMLParser createXMLParser(XMLElement rootElement) {
+    return new XMLInfoLogger(rootElement);
   }
 
   @Override

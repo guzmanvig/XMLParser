@@ -3,32 +3,48 @@ package xmlparser;
 class XMLString implements XMLElementComponent {
 
   private String currentString;
+  private boolean isCompleted = false;
 
   XMLString() {
-
+    currentString = "";
   }
 
   XMLString(XMLString xmlString) {
-
-  }
-
-  @Override
-  public void start(char startChar) throws InvalidXMLException {
-    currentString = "" + startChar;
+    currentString = xmlString.currentString;
   }
 
   @Override
   public XMLString createCopy() {
-    return null;
+    return new XMLString(this);
   }
 
   @Override
   public boolean isStarted() {
-    return false;
+    return currentString.length() != 0;
   }
 
   @Override
-  public boolean processChar(char c) throws InvalidXMLException {
-    return false;
+  public boolean isCompleted() {
+    return isCompleted;
+  }
+
+  @Override
+  public void processChar(char c) throws InvalidXMLException {
+    if (isInvalidCharacter(c)) {
+      throw new InvalidXMLException("Invalid character in string " + c);
+    }
+    if (isStartTagSpecialCharacter(c)) {
+      isCompleted = true;
+    }  else {
+      currentString = currentString + c;
+    }
+  }
+
+  private static boolean isInvalidCharacter(char c) {
+    return c == '>';
+  }
+
+  private static boolean isStartTagSpecialCharacter(char c) {
+    return c == '<';
   }
 }

@@ -5,8 +5,8 @@ package xmlparser;
  * This can be: Tags, Strings, and XMLElements
  */
 interface XMLElementComponent {
-  void start(char startChar) throws InvalidXMLException;
   XMLElementComponent createCopy();
   boolean isStarted();
-  boolean processChar(char c) throws InvalidXMLException;
+  boolean isCompleted();
+  void processChar(char c) throws InvalidXMLException;
 }
