@@ -84,6 +84,9 @@ class XMLTag implements XMLElementComponent {
         if (hasOnlySpecialStartCharacter() && isInvalidFirstCharacter(c)) {
           throw new InvalidXMLException("Invalid first character in tag: " + c);
         }
+      if (previousCharacterIsEndFirstCharacter() && isStartTag()) {
+        throw new InvalidXMLException("Invalid character after /: " + c);
+      }
         currentTagString = currentTagString + c;
     } else {
         throw new InvalidXMLException("Invalid character in tag: " + c);
@@ -104,6 +107,10 @@ class XMLTag implements XMLElementComponent {
 
   private boolean hasOnlySpecialStartCharacter() {
     return currentTagString.length() == 1;
+  }
+
+  private boolean previousCharacterIsEndFirstCharacter() {
+    return currentTagString.charAt(currentTagString.length() -1) == '/';
   }
 
   private static boolean isInvalidFirstCharacter(char c) {

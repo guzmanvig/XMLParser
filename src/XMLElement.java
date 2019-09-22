@@ -147,11 +147,11 @@ class XMLElement implements XMLElementComponent{
   private void finishProcessingStartTag() throws InvalidXMLException {
     if (children.isEmpty()) {
       children.add(tagBeingProcessed);
-    } else if (!tagBeingProcessed.getTagName().equals(getStartTagName())) {
+    } else /*if (!tagBeingProcessed.getTagName().equals(getStartTagName()))*/ {
       childElementBeingProcessed = createChildAndAddTag(tagBeingProcessed);
-    } else {
+    } /*else {
       throw new InvalidXMLException("Cannot add child with same tag as parent");
-    }
+    }*/
   }
 
   private String getStartTagName() {

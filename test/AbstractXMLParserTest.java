@@ -104,6 +104,11 @@ public abstract class AbstractXMLParserTest {
   }
 
   @Test(expected = InvalidXMLException.class)
+  public void testInvalidCharacterAfterSpecialCharacter() throws InvalidXMLException {
+    enterXMLInput("<h/t");
+  }
+
+  @Test(expected = InvalidXMLException.class)
   public void testStartTagAfterRoot() throws InvalidXMLException {
     enterXMLInput("<root> txt </root><");
   }
@@ -367,5 +372,29 @@ public abstract class AbstractXMLParserTest {
             + "\nStarted:p"
             + "\n");
   }
+
+  @Test()
+  public void testValidSameNameChild() throws InvalidXMLException {
+    XMLParser resultParser = enterXMLInput("<html><div><p></p><div></div></div></html>");
+    assertOutputValidatorAndLogger(resultParser,"Status:Valid",
+        "Started:html"
+            + "\nStarted:div"
+            + "\nStarted:p"
+            + "\nEnded:p"
+            + "\nStarted:div"
+            + "\nEnded:div"
+            + "\nEnded:div"
+            + "\nEnded:html"
+            + "\n");
+  }
+
+  @Test
+  public void TestLongInput() throws InvalidXMLException {
+    enterXMLInput("<a><a><a><a><a><a><a><a><a><a><a><a><a><a><a><a><a><a>"+
+        "</a></a></a></a></a></a></a></a></a></a></a></a></a></a></a></a></a></a>");
+  }
+
+
+
 
 }
