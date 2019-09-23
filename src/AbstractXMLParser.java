@@ -8,11 +8,11 @@ abstract class AbstractXMLParser implements XMLParser {
   XMLElement rootElement = new XMLElement();
 
   /**
-   * Processes a new char and changes the current state of the parser accordingly
-   * @param c the input character
-   * @return the parser modified by the char
+   * Processes a new char and changes the current state of the parser accordingly.
+   * @param c the input character.
+   * @return the parser modified by the char.
    * @throws InvalidXMLException if the character cannot be processed since it will not form a valid
-   * xml
+   *                             xml.
    */
   @Override
   public XMLParser input(char c) throws InvalidXMLException {

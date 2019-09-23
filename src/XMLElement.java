@@ -59,7 +59,7 @@ class XMLElement implements XMLElementComponent {
    * accordingly.
    * @param c the char to be processed,
    * @throws InvalidXMLException if the character cannot be processed since it will not form a valid
-   * xml element.
+   *                              xml element.
    */
   @Override
   public void processChar(char c) throws InvalidXMLException {

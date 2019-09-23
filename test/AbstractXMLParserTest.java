@@ -1,10 +1,19 @@
 import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 
+/**
+ * Abstract a way for testing the XMLValidator and XMLInfoLogger at the same time.
+ * The input method is tested for both in the same way, i.e.: it expects the same results,
+ * but the output method is tested differently for each.
+ */
 public abstract class AbstractXMLParserTest {
 
   protected abstract XMLParser createXMLParser();
 
+  /**
+   * Class that creates an instance of a XMLValidator to be tested.
+   */
   public static final class XMLValidatorTest extends AbstractXMLParserTest {
     @Override
     protected XMLParser createXMLParser() {
@@ -12,6 +21,9 @@ public abstract class AbstractXMLParserTest {
     }
   }
 
+  /**
+   * Class that creates an instance of a XMLInfoLogger to be tested.
+   */
   public static final class XMLInfoLoggerTest extends AbstractXMLParserTest {
     @Override
     protected XMLParser createXMLParser() {
@@ -109,9 +121,9 @@ public abstract class AbstractXMLParserTest {
 
   private void assertOutputValidatorAndLogger(XMLParser parser,String expectedValidatorOutput,
       String expectedLoggerOutput) {
-    if (parser instanceof XMLValidator)
+    if (parser instanceof XMLValidator) {
       assertEquals(expectedValidatorOutput, parser.output());
-    else if (parser instanceof XMLInfoLogger) {
+    } else if (parser instanceof XMLInfoLogger) {
       assertEquals(expectedLoggerOutput, parser.output());
     }
   }
