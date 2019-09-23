@@ -3,10 +3,13 @@ import java.util.ArrayList;
 
 /**
  * Class that represents an XML element implementing the XMLElementComponents interface.
- * This is element has children. They can be tags, strings, or more elements.
+ * This is element has children. They can be tags (own start and end tag), strings,
+ * or more XML elements.
  * The children are complete elements, meaning that the input is such, that they can be completely
  * determined.
- * The XMLElement can also have children being processed, these are stored in separate variables.
+ * The XMLElement can also have children being processed,
+ * these are stored in separate variables, and are added to the children once the input
+ * completes them.
  */
 class XMLElement implements XMLElementComponent {
 
@@ -65,39 +68,26 @@ class XMLElement implements XMLElementComponent {
   public void processChar(char c) throws InvalidXMLException {
     if (childIsBeingProcessed()) {
 
-      childElementBeingProcessed.processChar(c);
-      if (childElementBeingProcessed.isCompleted()) {
-        children.add(childElementBeingProcessed);
-      }
+      childBeingProcessingProcessChar(c);
 
     } else if (tagIsBeingProcessed()) {
 
-      tagBeingProcessed.processChar(c);
-      if (!tagBeingProcessed.isStartTag()) {
-        checkIfValidEndTag();
-      }
-      if (tagBeingProcessed.isCompleted()) {
-        finishProcessingTag();
-      }
+      tagBeingProcessedProcessChar(c);
 
     } else if (stringIsBeingProcessed()) {
 
-      stringBeingProcessed.processChar(c);
-      if (stringBeingProcessed.isCompleted()) {
-        finishProcessingString(c);
-      }
+      stringBeingProcessedProcessChar(c);
 
-    } else if (!isStarted() && c != ' ') {
-      isStarted = true;
-      startTag(c);
-    } else if (isStarted && !isCompleted()) {
-      if (XMLTag.isStartSpecialCharacter(c)) {
-        startTag(c);
-      } else {
-        startString(c);
-      }
-    } else if (c != ' ') {
-      throw new InvalidXMLException("Cannot add char. No open element");
+    } else if (isStarted && !isComplete) {
+
+      startProcessingChildTagOrString(c);
+
+    } else if (!isStarted && isNotSpaceChar(c)) {
+
+      startProcessingOwnStartTag(c);
+
+    } else if (isNotSpaceChar(c)) {
+      throw new InvalidXMLException("Cannot add char to a closed XML");
     }
   }
 
@@ -107,10 +97,79 @@ class XMLElement implements XMLElementComponent {
         && !childElementBeingProcessed.isCompleted();
   }
 
+  private void childBeingProcessingProcessChar(char c) throws InvalidXMLException {
+    childElementBeingProcessed.processChar(c);
+    if (childElementBeingProcessed.isCompleted()) {
+      children.add(childElementBeingProcessed);
+    }
+  }
+
   private boolean tagIsBeingProcessed() {
     return tagBeingProcessed != null
         && tagBeingProcessed.isStarted()
         && !tagBeingProcessed.isCompleted();
+  }
+
+  private void tagBeingProcessedProcessChar(char c) throws InvalidXMLException {
+    tagBeingProcessed.processChar(c);
+    if (!tagBeingProcessed.isStartTag()) {
+      checkIfValidCandidateToOwnEndTag();
+    }
+    if (tagBeingProcessed.isCompleted()) {
+      finishProcessingTag();
+    }
+  }
+
+  private void checkIfValidCandidateToOwnEndTag() throws InvalidXMLException {
+    if (children.isEmpty()) {
+      throw new InvalidXMLException("Element cannot start with end tag");
+    }
+    String thisElementStartTagName = getStartTagName();
+    String currentlyEndTagName = tagBeingProcessed.getName();
+    if (!currentlyEndTagName.equals("")
+        && !thisElementStartTagName.startsWith(currentlyEndTagName)) {
+      throw new InvalidXMLException("Ending tag should have the same name as starting tag");
+    }
+  }
+
+  private String getStartTagName() {
+    return ((XMLTag)children.get(0)).getName();
+  }
+
+  private void finishProcessingTag() throws InvalidXMLException {
+    if (tagBeingProcessed.isStartTag()) {
+      // Can be this element own start tag or a children's start tag
+      finishProcessingStartTag();
+    } else {
+      // Can only be this element own end tag
+      finishProcessingOwnEndTag();
+    }
+  }
+
+  private void finishProcessingStartTag() throws InvalidXMLException {
+    // If the element had no children, it's this element own start tag
+    if (children.isEmpty()) {
+      children.add(tagBeingProcessed);
+    } else {
+      // If not, is the start tag of a new element
+      childElementBeingProcessed = createChildElementAndAddTagToIt(tagBeingProcessed);
+    }
+  }
+
+  private XMLElement createChildElementAndAddTagToIt(XMLTag startTag) {
+    XMLElement childElement = new XMLElement();
+    childElement.children.add(startTag);
+    childElement.isStarted = true;
+    return childElement;
+  }
+
+  private void finishProcessingOwnEndTag() throws InvalidXMLException {
+    if (tagBeingProcessed.getName().equals(getStartTagName())) {
+      children.add(tagBeingProcessed);
+      isComplete = true;
+    } else {
+      throw new InvalidXMLException("Ending tag should have the same name as starting tag");
+    }
   }
 
   private boolean stringIsBeingProcessed() {
@@ -119,62 +178,17 @@ class XMLElement implements XMLElementComponent {
         && !stringBeingProcessed.isCompleted();
   }
 
-
-  private void checkIfValidEndTag() throws InvalidXMLException {
-    if (children.isEmpty()) {
-      throw new InvalidXMLException("Element cannot start with end tag");
-    }
-    XMLTag startTag = (XMLTag) children.get(0);
-    String startTagName = startTag.getTagName();
-    String currentlyEndTagName = tagBeingProcessed.getTagName();
-    if (!currentlyEndTagName.equals("")
-        && (!currentlyEndTagName.equals(startTagName.substring(0, currentlyEndTagName.length()))
-        || currentlyEndTagName.length() > startTagName.length())) {
-      throw new InvalidXMLException("Invalid end tag: " + currentlyEndTagName);
-    }
-  }
-
-  private void finishProcessingTag() throws InvalidXMLException {
-    if (tagBeingProcessed.isStartTag()) {
-      finishProcessingStartTag();
-    } else {
-      finishProcessingEndTag();
-    }
-  }
-
-  private void finishProcessingStartTag() throws InvalidXMLException {
-    if (children.isEmpty()) {
-      children.add(tagBeingProcessed);
-    } else {
-      childElementBeingProcessed = createChildAndAddTag(tagBeingProcessed);
-    }
-  }
-
-  private String getStartTagName() {
-    return ((XMLTag)children.get(0)).getTagName();
-  }
-
-  private XMLElement createChildAndAddTag(XMLTag startTag) {
-    XMLElement childElement = new XMLElement();
-    childElement.children.add(startTag);
-    childElement.isStarted = true;
-    return childElement;
-  }
-
-
-  private void finishProcessingEndTag() throws InvalidXMLException {
-    if (tagBeingProcessed.getTagName().equals(getStartTagName())) {
-      children.add(tagBeingProcessed);
-      isComplete = true;
-    } else {
-      throw new InvalidXMLException("Ending tag should have the same name as starting tag");
+  private void stringBeingProcessedProcessChar(char c) throws InvalidXMLException {
+    stringBeingProcessed.processChar(c);
+    if (stringBeingProcessed.isCompleted()) {
+      finishProcessingString(c);
     }
   }
 
   private void finishProcessingString(char lastProcessedCharacter) throws InvalidXMLException {
     children.add(stringBeingProcessed);
+    // If the string finished it's because a < was processed, meaning the start of a tag.
     startTag(lastProcessedCharacter);
-
   }
 
   private void startTag(char startChar) throws InvalidXMLException {
@@ -182,9 +196,26 @@ class XMLElement implements XMLElementComponent {
     tagBeingProcessed.processChar(startChar);
   }
 
+  private static boolean isNotSpaceChar(char c) {
+    return c != ' ';
+  }
+
+  private void startProcessingChildTagOrString(char startChar) throws InvalidXMLException {
+    if (XMLTag.isStartSpecialCharacter(startChar)) {
+      startTag(startChar);
+    } else {
+      startString(startChar);
+    }
+  }
+
   private void startString(char startChar) throws InvalidXMLException {
     stringBeingProcessed = new XMLString();
     stringBeingProcessed.processChar(startChar);
+  }
+
+  private void startProcessingOwnStartTag(char startChar) throws InvalidXMLException {
+    isStarted = true;
+    startTag(startChar);
   }
 
 }

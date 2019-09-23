@@ -105,6 +105,11 @@ public abstract class AbstractXMLParserTest {
   }
 
   @Test(expected = InvalidXMLException.class)
+  public void testCharacterInTag() throws InvalidXMLException {
+    enterXMLInput(createXMLParser(),"<head></hea>");
+  }
+
+  @Test(expected = InvalidXMLException.class)
   public void testInvalidCharacterAfterSpecialCharacter() throws InvalidXMLException {
     enterXMLInput(createXMLParser(),"<h/t");
   }

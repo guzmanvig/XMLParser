@@ -9,44 +9,32 @@ class XMLTag implements XMLElementComponent {
   private String currentTagString = "";
   private boolean isComplete = false;
 
-  String getTagName() {
-    //TODO: clean this
-    int tagLength = currentTagString.length();
-    if (tagLength == 0 || tagLength == 1) {
-      return "";
-    } else {
-      if (currentTagString.charAt(1) == '/') {
-        if (currentTagString.length() == 2) {
-          return "";
-        } else {
-          if (currentTagString.charAt(currentTagString.length() - 1) == '>') {
-            return currentTagString.substring(2, currentTagString.length() - 1);
-          } else {
-            return currentTagString.substring(2);
-          }
-        }
-      } else {
-        if (currentTagString.charAt(currentTagString.length() - 1) == '>') {
-          return currentTagString.substring(1, currentTagString.length() - 1);
-        } else {
-          return currentTagString.substring(1);
-        }
-      }
+  /**
+   * Gets the tag name that has been processed so far.
+   * @return the name that has been processed so far
+   */
+  String getName() {
+    String name = currentTagString.replace("<", "");
+    name = name.replace(">", "");
+    if (name.charAt(0) == '/') {
+      name = name.replace("/", "");
     }
+    return name;
   }
 
-  private void start(char startChar) throws InvalidXMLException {
-    if (!isStartSpecialCharacter(startChar)) {
-      throw new InvalidXMLException("Invalid tag start character " + startChar);
-    }
-    currentTagString = "" + startChar;
-  }
 
+  /**
+   * Checks if this tag is a start tag or an end tag.
+   * @return true if it is a start tag or if the current input is not enough to determine it.
+   */
   boolean isStartTag() {
     if (currentTagString.length() >= 2) {
       return currentTagString.charAt(1) != '/';
     } else {
-      //Since we don't now, we assume it is
+      //Since the current input is not enough to know, return true.
+      // It won't matter to the parser output since it only prints completed elements.
+      // The element will check if its an end tag to compare it with its first tag, in this state,
+      // the comparison doesn't make sense, so returning true avoids that comparison.
       return true;
     }
   }
@@ -79,26 +67,39 @@ class XMLTag implements XMLElementComponent {
   @Override
   public void processChar(char c) throws InvalidXMLException {
     if (!isStarted()) {
+
       start(c);
+
     } else if (isEndFirstSpecialCharacter(c)) {
-      currentTagString = currentTagString + c;
+
+      addChar(c);
+
     } else if (isEndSecondSpecialCharacter(c)) {
-      if (currentTagString.length() == 1) {
-        throw new InvalidXMLException("Tag must have a non empty name");
-      }
-      currentTagString = currentTagString + c;
-      isComplete = true;
+
+      complete(c);
+
     } else if (isValidCharacter(c)) {
-      if (hasOnlySpecialStartCharacter() && isInvalidFirstCharacter(c)) {
-        throw new InvalidXMLException("Invalid first character in tag: " + c);
-      }
-      if (previousCharacterIsEndFirstCharacter() && isStartTag()) {
-        throw new InvalidXMLException("Invalid character after /: " + c);
-      }
-      currentTagString = currentTagString + c;
+
+      processCharForTagName(c);
+
     } else {
       throw new InvalidXMLException("Invalid character in tag: " + c);
     }
+  }
+
+  private void start(char startChar) throws InvalidXMLException {
+    if (!isStartSpecialCharacter(startChar)) {
+      throw new InvalidXMLException("Invalid tag start character " + startChar);
+    }
+    addChar(startChar);
+  }
+
+  static boolean isStartSpecialCharacter(char c) {
+    return c == '<';
+  }
+
+  private void addChar(char c) {
+    currentTagString = currentTagString + c;
   }
 
   private static boolean isEndFirstSpecialCharacter(char c) {
@@ -109,20 +110,30 @@ class XMLTag implements XMLElementComponent {
     return c == '>';
   }
 
-  static boolean isStartSpecialCharacter(char c) {
-    return c == '<';
+  private void complete(char endChar) throws InvalidXMLException {
+    if (currentTagString.length() == 1) {
+      throw new InvalidXMLException("Tag must have a non empty name");
+    }
+    addChar(endChar);
+    isComplete = true;
+  }
+
+  private void processCharForTagName(char c) throws InvalidXMLException {
+    if (hasOnlySpecialStartCharacter() && isInvalidFirstCharacter(c)) {
+      throw new InvalidXMLException("Invalid first character in tag: " + c);
+    }
+    if (previousCharacterIsEndFirstSpecialCharacter() && isStartTag()) {
+      throw new InvalidXMLException("Invalid character after /: " + c);
+    }
+    addChar(c);
   }
 
   private boolean hasOnlySpecialStartCharacter() {
     return currentTagString.length() == 1;
   }
 
-  private boolean previousCharacterIsEndFirstCharacter() {
+  private boolean previousCharacterIsEndFirstSpecialCharacter() {
     return currentTagString.charAt(currentTagString.length() - 1) == '/';
-  }
-
-  private static boolean isInvalidFirstCharacter(char c) {
-    return isDigit(c) || c == '-';
   }
 
   private static boolean isValidCharacter(char c) {
@@ -137,4 +148,9 @@ class XMLTag implements XMLElementComponent {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 
   }
+
+  private static boolean isInvalidFirstCharacter(char c) {
+    return isDigit(c) || c == '-';
+  }
+
 }

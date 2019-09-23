@@ -23,43 +23,46 @@ public final class XMLInfoLogger extends AbstractXMLParser {
   @Override
   public String output() {
     output = "";
-    processXMLElement(rootElement);
+    obtainOutputForXMLElement(rootElement);
     return output;
   }
 
-  private void processXMLElement(XMLElement element) {
-    processChildren(element);
+  private void obtainOutputForXMLElement(XMLElement element) {
+    // Get the output for all the complete children
+    obtainOutputOfChildren(element);
+
+    // If there is a child being processed, get the output for that child
     XMLElement childBeingProcessed = element.getChildBeingProcessed();
     if (childBeingProcessed != null && !childBeingProcessed.isCompleted()) {
-      processXMLElement(element.getChildBeingProcessed());
+      obtainOutputForXMLElement(childBeingProcessed);
     }
   }
 
-  private void processChildren(XMLElement element) {
+  private void obtainOutputOfChildren(XMLElement element) {
     ArrayList<XMLElementComponent> children = element.getChildren();
     for (int i = 0; i < children.size(); i++) {
       XMLElementComponent child = children.get(i);
       if (child instanceof XMLElement) {
-        processXMLElement((XMLElement) child);
+        obtainOutputForXMLElement((XMLElement) child);
       } else if (child instanceof XMLTag) {
-        processXMLTag((XMLTag) child);
+        obtainOutputForXMLTag((XMLTag) child);
       } else if (child instanceof XMLString) {
-        // If there is a next complete element, string is valid
+        // If there is a next complete element, string is shown in the output
         if (i != children.size() - 1) {
-          processXMLString((XMLString) child);
-          // If the processing element has already a starting tag
-        } else if (childBeingProcessedHasValidStartTag(element.getChildBeingProcessed())) {
-          processXMLString((XMLString) child);
+          obtainOutputForXMLString((XMLString) child);
+          // If the there is a complete element in the child being processed, also show it
+        } else if (elementHasAtLeastOneCompleteChild(element.getChildBeingProcessed())) {
+          obtainOutputForXMLString((XMLString) child);
         }
       }
     }
   }
 
-  private void processXMLTag(XMLTag tag) {
+  private void obtainOutputForXMLTag(XMLTag tag) {
     if (tag.isStartTag()) {
-      appendToOutput(START_TAG_STRING + tag.getTagName());
+      appendToOutput(START_TAG_STRING + tag.getName());
     } else {
-      appendToOutput(END_TAG_STRING + tag.getTagName());
+      appendToOutput(END_TAG_STRING + tag.getName());
     }
   }
 
@@ -67,15 +70,15 @@ public final class XMLInfoLogger extends AbstractXMLParser {
     output = output + stringToAppend + "\n";
   }
 
-  private void processXMLString(XMLString string) {
+  private void obtainOutputForXMLString(XMLString string) {
     appendToOutput(CHARACTERS_STRING + string.getString());
   }
 
-  private boolean childBeingProcessedHasValidStartTag(XMLElement childBeingProcessed) {
-    if (childBeingProcessed == null) {
+  private boolean elementHasAtLeastOneCompleteChild(XMLElement element) {
+    if (element == null) {
       return false;
     } else {
-      return (!childBeingProcessed.isCompleted() && childBeingProcessed.getChildren().size() != 0);
+      return (!element.isCompleted() && element.getChildren().size() != 0);
     }
   }
 
