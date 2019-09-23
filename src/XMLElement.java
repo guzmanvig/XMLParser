@@ -1,7 +1,14 @@
 import java.util.ArrayList;
 
 
-class XMLElement implements XMLElementComponent{
+/**
+ * Class that represents an XML element implementing the XMLElementComponents interface.
+ * This is element has children. They can be tags, strings, or more elements.
+ * The children are complete elements, meaning that the input is such, that they can be completely
+ * determined.
+ * The XMLElement can also have children being processed, these are stored in separate variables.
+ */
+class XMLElement implements XMLElementComponent {
 
   private ArrayList<XMLElementComponent> children;
   private boolean isComplete;
@@ -26,16 +33,34 @@ class XMLElement implements XMLElementComponent{
     return childElementBeingProcessed;
   }
 
+  /**
+   * The element has started then is processing one element.
+   * @return the element has started
+   */
   @Override
   public boolean isStarted() {
     return isStarted;
   }
 
+  /**
+   * An element is completed when is has successfully processed a start tag and its correspondent
+   * end tag.
+   * @return the element is completed.
+   */
   @Override
   public boolean isCompleted() {
     return isComplete;
   }
 
+  /**
+   * Processes a char. This will either create a component to be processed, or
+   * it will pass it to the current component being processed.
+   * If there was a component being processed, and the char makes it complete, it will process it
+   * accordingly.
+   * @param c the char to be processed,
+   * @throws InvalidXMLException if the character cannot be processed since it will not form a valid
+   * xml element.
+   */
   @Override
   public void processChar(char c) throws InvalidXMLException {
     if (childIsBeingProcessed()) {
@@ -45,13 +70,13 @@ class XMLElement implements XMLElementComponent{
         children.add(childElementBeingProcessed);
       }
 
-    } else if (tagIsBeingProcessed()){
+    } else if (tagIsBeingProcessed()) {
 
       tagBeingProcessed.processChar(c);
       if (!tagBeingProcessed.isStartTag()) {
         checkIfValidEndTag();
       }
-      if (tagBeingProcessed.isCompleted()){
+      if (tagBeingProcessed.isCompleted()) {
         finishProcessingTag();
       }
 
@@ -71,7 +96,7 @@ class XMLElement implements XMLElementComponent{
       } else {
         startString(c);
       }
-    } else if (c != ' '){
+    } else if (c != ' ') {
       throw new InvalidXMLException("Cannot add char. No open element");
     }
   }
@@ -104,7 +129,7 @@ class XMLElement implements XMLElementComponent{
     String currentlyEndTagName = tagBeingProcessed.getTagName();
     if (!currentlyEndTagName.equals("")
         && (!currentlyEndTagName.equals(startTagName.substring(0, currentlyEndTagName.length()))
-        || currentlyEndTagName.length() > startTagName.length())){
+        || currentlyEndTagName.length() > startTagName.length())) {
       throw new InvalidXMLException("Invalid end tag: " + currentlyEndTagName);
     }
   }

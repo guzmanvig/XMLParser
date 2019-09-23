@@ -1,13 +1,9 @@
-import org.junit.Before;
 import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
-
 
 public abstract class AbstractXMLParserTest {
 
   protected abstract XMLParser createXMLParser();
-
 
   public static final class XMLValidatorTest extends AbstractXMLParserTest {
     @Override
@@ -25,7 +21,7 @@ public abstract class AbstractXMLParserTest {
   
 
   private void enterXMLInput(XMLParser parser, String xml) throws InvalidXMLException {
-    for(int i = 0, n = xml.length() ; i < n ; i++) {
+    for (int i = 0, n = xml.length() ; i < n ; i++) {
       char c = xml.charAt(i);
       parser.input(c);
     }
@@ -48,7 +44,7 @@ public abstract class AbstractXMLParserTest {
 
   @Test(expected = InvalidXMLException.class)
   public void testClosingWrongTag() throws InvalidXMLException {
-   enterXMLInput(createXMLParser(),"<root> text </t");
+    enterXMLInput(createXMLParser(),"<root> text </t");
   }
 
   @Test(expected = InvalidXMLException.class)
@@ -58,7 +54,7 @@ public abstract class AbstractXMLParserTest {
 
   @Test(expected = InvalidXMLException.class)
   public void testInvalidClosingOfTag() throws InvalidXMLException {
-   enterXMLInput(createXMLParser(),"<root> <txt<");
+    enterXMLInput(createXMLParser(),"<root> <txt<");
   }
 
   @Test(expected = InvalidXMLException.class)
@@ -73,17 +69,17 @@ public abstract class AbstractXMLParserTest {
 
   @Test(expected = InvalidXMLException.class)
   public void testDoubleOpeningOfTag() throws InvalidXMLException {
-   enterXMLInput(createXMLParser(),"<<");
+    enterXMLInput(createXMLParser(),"<<");
   }
 
   @Test(expected = InvalidXMLException.class)
   public void testEmptyTag() throws InvalidXMLException {
-   enterXMLInput(createXMLParser(),"<>");
+    enterXMLInput(createXMLParser(),"<>");
   }
 
   @Test(expected = InvalidXMLException.class)
   public void testInvalidCharacterInTagStart0() throws InvalidXMLException {
-   enterXMLInput(createXMLParser(),"<0");
+    enterXMLInput(createXMLParser(),"<0");
   }
 
   @Test(expected = InvalidXMLException.class)
@@ -93,7 +89,7 @@ public abstract class AbstractXMLParserTest {
 
   @Test(expected = InvalidXMLException.class)
   public void testStartWithClosingTag() throws InvalidXMLException {
-   enterXMLInput(createXMLParser(),"</");
+    enterXMLInput(createXMLParser(),"</");
   }
 
   @Test(expected = InvalidXMLException.class)
@@ -108,7 +104,7 @@ public abstract class AbstractXMLParserTest {
 
   @Test(expected = InvalidXMLException.class)
   public void testStartTextAfterRoot() throws InvalidXMLException {
-   enterXMLInput(createXMLParser(),"<root> txt </root>t");
+    enterXMLInput(createXMLParser(),"<root> txt </root>t");
   }
 
   private void assertOutputValidatorAndLogger(XMLParser parser,String expectedValidatorOutput,

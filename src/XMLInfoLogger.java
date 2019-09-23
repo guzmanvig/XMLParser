@@ -1,6 +1,10 @@
 import java.util.ArrayList;
 
-public final class XMLInfoLogger extends AbstractXMLParser{
+/**
+ * Class that implements a XMLParser.
+ * This class prints a detailed output for the current input.
+ */
+public final class XMLInfoLogger extends AbstractXMLParser {
 
   private static final String START_TAG_STRING = "Started:";
   private static final String END_TAG_STRING = "Ended:";
@@ -9,6 +13,13 @@ public final class XMLInfoLogger extends AbstractXMLParser{
   private String output;
 
 
+  /**
+   * Prints the input. It only prints the complete determined elements so far.
+   * If the element is a start tag it prints: Started:tagName\n
+   * If the element is a string it prints: Characters:string\n
+   * If the element is a end tag it prints: Ended:tagName\n
+   * @return the string that shows the current parsed XML.
+   */
   @Override
   public String output() {
     output = "";
@@ -50,8 +61,8 @@ public final class XMLInfoLogger extends AbstractXMLParser{
     } else {
       appendToOutput(END_TAG_STRING + tag.getTagName());
     }
-
   }
+
   private void appendToOutput(String stringToAppend) {
     output = output + stringToAppend + "\n";
   }
