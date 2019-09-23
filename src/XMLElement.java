@@ -18,39 +18,6 @@ class XMLElement implements XMLElementComponent{
     isStarted = false;
   }
 
-  XMLElement(XMLElement xmlElement) {
-
-    this.children =  copyChildren(xmlElement.children);
-    this.isComplete = xmlElement.isComplete;
-    this.isStarted = xmlElement.isStarted;
-
-    if (xmlElement.tagBeingProcessed != null && (xmlElement.tagBeingProcessed.isStarted())) {
-      this.tagBeingProcessed = new XMLTag(xmlElement.tagBeingProcessed);
-    } else {
-      this.tagBeingProcessed = new XMLTag();
-    }
-
-    if(xmlElement.stringBeingProcessed != null && (xmlElement.stringBeingProcessed.isStarted())) {
-      this.stringBeingProcessed = new XMLString(xmlElement.stringBeingProcessed);
-    }  else {
-      stringBeingProcessed = new XMLString();
-    }
-
-    if(xmlElement.childElementBeingProcessed != null && (xmlElement.childElementBeingProcessed.isStarted())) {
-      this.childElementBeingProcessed = new XMLElement(xmlElement.childElementBeingProcessed);
-    }  else {
-      childElementBeingProcessed = new XMLElement();
-    }
-  }
-
-  private ArrayList<XMLElementComponent> copyChildren(ArrayList<XMLElementComponent> childrenToCopy) {
-    ArrayList<XMLElementComponent> returnArray = new ArrayList<>();
-    for (XMLElementComponent xmlChildElement : childrenToCopy){
-      returnArray.add(xmlChildElement.createCopy());
-    }
-    return returnArray;
-  }
-
   ArrayList<XMLElementComponent> getChildren() {
     return children;
   }
@@ -67,11 +34,6 @@ class XMLElement implements XMLElementComponent{
   @Override
   public boolean isCompleted() {
     return isComplete;
-  }
-
-  @Override
-  public XMLElement createCopy() {
-    return new XMLElement(this);
   }
 
   @Override
@@ -100,27 +62,38 @@ class XMLElement implements XMLElementComponent{
         finishProcessingString(c);
       }
 
-    } else if (!isStarted()) {
+    } else if (!isStarted() && c != ' ') {
       isStarted = true;
       startTag(c);
-    } else if (!isCompleted()) {
+    } else if (isStarted && !isCompleted()) {
       if (XMLTag.isStartSpecialCharacter(c)) {
         startTag(c);
       } else {
         startString(c);
       }
-    } else {
+    } else if (c != ' '){
       throw new InvalidXMLException("Cannot add char. No open element");
     }
   }
 
   private boolean childIsBeingProcessed() {
-    return childElementBeingProcessed.isStarted() && !childElementBeingProcessed.isCompleted();
+    return childElementBeingProcessed != null
+        && childElementBeingProcessed.isStarted()
+        && !childElementBeingProcessed.isCompleted();
   }
 
   private boolean tagIsBeingProcessed() {
-    return tagBeingProcessed.isStarted() && !tagBeingProcessed.isCompleted();
+    return tagBeingProcessed != null
+        && tagBeingProcessed.isStarted()
+        && !tagBeingProcessed.isCompleted();
   }
+
+  private boolean stringIsBeingProcessed() {
+    return stringBeingProcessed != null
+        && stringBeingProcessed.isStarted()
+        && !stringBeingProcessed.isCompleted();
+  }
+
 
   private void checkIfValidEndTag() throws InvalidXMLException {
     if (children.isEmpty()) {
@@ -147,11 +120,9 @@ class XMLElement implements XMLElementComponent{
   private void finishProcessingStartTag() throws InvalidXMLException {
     if (children.isEmpty()) {
       children.add(tagBeingProcessed);
-    } else /*if (!tagBeingProcessed.getTagName().equals(getStartTagName()))*/ {
+    } else {
       childElementBeingProcessed = createChildAndAddTag(tagBeingProcessed);
-    } /*else {
-      throw new InvalidXMLException("Cannot add child with same tag as parent");
-    }*/
+    }
   }
 
   private String getStartTagName() {
@@ -173,10 +144,6 @@ class XMLElement implements XMLElementComponent{
     } else {
       throw new InvalidXMLException("Ending tag should have the same name as starting tag");
     }
-  }
-
-  private boolean stringIsBeingProcessed() {
-    return stringBeingProcessed.isStarted() && !stringBeingProcessed.isCompleted();
   }
 
   private void finishProcessingString(char lastProcessedCharacter) throws InvalidXMLException {

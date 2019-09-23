@@ -3,7 +3,6 @@
  * This can be: Tags, Strings, and XMLElements
  */
 interface XMLElementComponent {
-  XMLElementComponent createCopy();
   boolean isStarted();
   boolean isCompleted();
   void processChar(char c) throws InvalidXMLException;

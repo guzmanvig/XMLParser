@@ -6,24 +6,12 @@ public final class XMLInfoLogger extends AbstractXMLParser{
   private static final String END_TAG_STRING = "Ended:";
   private static final String CHARACTERS_STRING = "Characters:";
 
-  private String output = "";
+  private String output;
 
-
-  XMLInfoLogger() {
-    super(new XMLElement());
-  }
-
-  XMLInfoLogger(XMLElement rootElement) {
-    super(rootElement);
-  }
-
-  @Override
-  XMLParser createXMLParser(XMLElement rootElement) {
-    return new XMLInfoLogger(rootElement);
-  }
 
   @Override
   public String output() {
+    output = "";
     processXMLElement(rootElement);
     return output;
   }

@@ -7,18 +7,8 @@ class XMLString implements XMLElementComponent {
     currentString = "";
   }
 
-  XMLString(XMLString xmlString) {
-    currentString = xmlString.currentString;
-    isCompleted = xmlString.isCompleted;
-  }
-
   String getString() {
     return currentString;
-  }
-
-  @Override
-  public XMLString createCopy() {
-    return new XMLString(this);
   }
 
   @Override

@@ -4,18 +4,8 @@ public final class XMLValidator extends AbstractXMLParser {
   private static final String INCOMPLETE_STATUS = "Status:Incomplete";
   private static final String VALID_STATUS =  "Status:Valid";
 
+  XMLValidator(){
 
-  XMLValidator() {
-    super(new XMLElement());
-  }
-
-  XMLValidator(XMLElement rootElement) {
-    super(rootElement);
-  }
-
-  @Override
-  XMLParser createXMLParser(XMLElement rootElement) {
-    return new XMLValidator(rootElement);
   }
 
   @Override

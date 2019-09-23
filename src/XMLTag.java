@@ -3,11 +3,6 @@ class XMLTag implements XMLElementComponent {
   private String currentTagString = "";
   private boolean isComplete = false;
 
-  XMLTag(XMLTag xmlTag) {
-    currentTagString = xmlTag.currentTagString;
-    isComplete = xmlTag.isComplete;
-  }
-
   XMLTag() {
   }
 
@@ -41,11 +36,6 @@ class XMLTag implements XMLElementComponent {
     if (!isStartSpecialCharacter(startChar))
       throw new InvalidXMLException("Invalid tag start character " + startChar);
     currentTagString = "" + startChar;
-  }
-
-  @Override
-  public XMLTag createCopy() {
-    return new XMLTag(this);
   }
 
   boolean isStartTag() {
